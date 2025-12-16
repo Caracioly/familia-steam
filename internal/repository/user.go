@@ -22,6 +22,24 @@ func NewUserRepository(db *sql.DB) *UserRepository {
 	return &UserRepository{db: db}
 }
 
+func (r *UserRepository) FindByID(userID int64) (*User, error) {
+	user := &User{}
+	err := r.db.QueryRow(`
+		SELECT id, discord_id, username, created_at, updated_at
+		FROM users
+		WHERE id = $1
+	`, userID).Scan(&user.ID, &user.DiscordID, &user.Username, &user.CreatedAt, &user.UpdatedAt)
+
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, fmt.Errorf("erro ao buscar usuário: %w", err)
+	}
+
+	return user, nil
+}
+
 func (r *UserRepository) FindByDiscordID(discordID string) (*User, error) {
 	user := &User{}
 	err := r.db.QueryRow(`

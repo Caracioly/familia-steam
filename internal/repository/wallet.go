@@ -20,6 +20,24 @@ func NewWalletRepository(db *sql.DB) *WalletRepository {
 	return &WalletRepository{db: db}
 }
 
+func (r *WalletRepository) FindByID(walletID int64) (*Wallet, error) {
+	wallet := &Wallet{}
+	err := r.db.QueryRow(`
+		SELECT id, user_id, created_at
+		FROM wallets
+		WHERE id = $1
+	`, walletID).Scan(&wallet.ID, &wallet.UserID, &wallet.CreatedAt)
+
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, fmt.Errorf("erro ao buscar carteira: %w", err)
+	}
+
+	return wallet, nil
+}
+
 func (r *WalletRepository) FindByUserID(userID int64) (*Wallet, error) {
 	wallet := &Wallet{}
 	err := r.db.QueryRow(`

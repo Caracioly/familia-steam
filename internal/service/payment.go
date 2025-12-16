@@ -85,18 +85,38 @@ func (s *PaymentService) CreatePixPayment(req CreatePixPaymentRequest) (*CreateP
 	}, nil
 }
 
-func (s *PaymentService) ConfirmPayment(externalRef string) error {
+type PaymentConfirmedData struct {
+	DiscordID string
+	Username  string
+	Amount    float64
+}
+
+func (s *PaymentService) ConfirmPayment(externalRef string) (*PaymentConfirmedData, error) {
 	transaction, err := s.txRepo.FindByExternalReference(externalRef)
 	if err != nil {
-		return fmt.Errorf("erro ao buscar transação: %w", err)
+		return nil, fmt.Errorf("erro ao buscar transação: %w", err)
 	}
 	if transaction == nil {
-		return fmt.Errorf("transação não encontrada: %s", externalRef)
+		return nil, fmt.Errorf("transação não encontrada: %s", externalRef)
 	}
 
 	if err := s.txRepo.UpdateStatus(transaction.ID, repository.StatusConfirmed); err != nil {
-		return fmt.Errorf("erro ao confirmar transação: %w", err)
+		return nil, fmt.Errorf("erro ao confirmar transação: %w", err)
 	}
 
-	return nil
+	wallet, err := s.walletRepo.FindByID(transaction.WalletID)
+	if err != nil {
+		return nil, fmt.Errorf("erro ao buscar wallet: %w", err)
+	}
+
+	user, err := s.userRepo.FindByID(wallet.UserID)
+	if err != nil {
+		return nil, fmt.Errorf("erro ao buscar usuário: %w", err)
+	}
+
+	return &PaymentConfirmedData{
+		DiscordID: user.DiscordID,
+		Username:  user.Username,
+		Amount:    transaction.Amount,
+	}, nil
 }

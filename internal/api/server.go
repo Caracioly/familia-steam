@@ -134,8 +134,11 @@ func (s *Server) handleWebhook(w http.ResponseWriter, r *http.Request) {
 
 	if webhook.Action == "payment.updated" || webhook.Action == "payment.created" {
 		if webhook.Data.ID != "" {
-			if err := s.paymentService.ConfirmPayment(webhook.Data.ID); err != nil {
+			confirmed, err := s.paymentService.ConfirmPayment(webhook.Data.ID)
+			if err != nil {
 				log.Printf("Erro ao confirmar pagamento %s: %v", webhook.Data.ID, err)
+			} else if confirmed != nil {
+				log.Printf("✅ Pagamento confirmado! User: %s, Valor: R$ %.2f", confirmed.Username, confirmed.Amount)
 			}
 		}
 	}
