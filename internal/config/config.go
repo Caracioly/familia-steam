@@ -6,9 +6,10 @@ import (
 )
 
 type Config struct {
-	Port         string
-	DatabaseURL  string
-	DiscordToken string
+	Port             string
+	DatabaseURL      string
+	DiscordToken     string
+	MercadoPagoToken string
 }
 
 func Load() (*Config, error) {
@@ -27,9 +28,15 @@ func Load() (*Config, error) {
 		return nil, fmt.Errorf("DISCORD_TOKEN é obrigatória")
 	}
 
+	mercadoPagoToken := os.Getenv("MERCADOPAGO_ACCESS_TOKEN")
+	if mercadoPagoToken == "" {
+		return nil, fmt.Errorf("MERCADOPAGO_ACCESS_TOKEN é obrigatória")
+	}
+
 	return &Config{
-		Port:         port,
-		DatabaseURL:  databaseURL,
-		DiscordToken: discordToken,
+		Port:             port,
+		DatabaseURL:      databaseURL,
+		DiscordToken:     discordToken,
+		MercadoPagoToken: mercadoPagoToken,
 	}, nil
 }

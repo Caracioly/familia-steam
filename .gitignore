@@ -1,5 +1,6 @@
 # Binários
-app
+/app
+/app.exe
 *.exe
 *.dll
 *.so
