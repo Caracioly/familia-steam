@@ -34,7 +34,6 @@ func NewClient(accessToken string) *Client {
 	}
 }
 
-// PixPaymentRequest representa a requisição para criar um pagamento PIX
 type PixPaymentRequest struct {
 	TransactionAmount float64 `json:"transaction_amount"`
 	Description       string  `json:"description"`
@@ -42,12 +41,10 @@ type PixPaymentRequest struct {
 	Payer             Payer   `json:"payer"`
 }
 
-// Payer representa o pagador
 type Payer struct {
 	Email string `json:"email"`
 }
 
-// PixPaymentResponse representa a resposta do Mercado Pago
 type PixPaymentResponse struct {
 	ID                 int64              `json:"id"`
 	Status             string             `json:"status"`
@@ -56,19 +53,16 @@ type PixPaymentResponse struct {
 	PointOfInteraction PointOfInteraction `json:"point_of_interaction"`
 }
 
-// PointOfInteraction contém dados do QR Code
 type PointOfInteraction struct {
 	TransactionData TransactionData `json:"transaction_data"`
 }
 
-// TransactionData contém o QR Code e o copia-e-cola
 type TransactionData struct {
-	QRCode       string `json:"qr_code"`        // Base64 da imagem
-	QRCodeBase64 string `json:"qr_code_base64"` // String copia-e-cola
-	TicketURL    string `json:"ticket_url"`     // URL alternativa
+	QRCode       string `json:"qr_code"`
+	QRCodeBase64 string `json:"qr_code_base64"`
+	TicketURL    string `json:"ticket_url"`
 }
 
-// CreatePixPayment cria um novo pagamento PIX
 func (c *Client) CreatePixPayment(amount float64, description string) (*PixPaymentResponse, error) {
 	reqBody := PixPaymentRequest{
 		TransactionAmount: amount,
